@@ -1,0 +1,23 @@
+{ app: {
+    host: 'localhost',
+    port: 3000,
+    namespace: '/api'
+  },
+  jwt: {
+    secret: 'hp',
+    options: {
+      expiresIn: '14d',
+    }
+  },
+  database: {
+    type: 'mysql',
+    host: 'localhost',
+    port: 3306,
+    username: 'hp',
+    password: 'hp',
+    database: 'HP',
+    logging: true,
+    entities: ['./**/*.entity{.ts,.js}'],
+    synchronize: true
+  }
+}

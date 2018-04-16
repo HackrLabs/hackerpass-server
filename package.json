@@ -1,0 +1,42 @@
+{
+  "name": "hackerpass-server",
+  "version": "0.1.0",
+  "description": "Hackerpass Server",
+  "main": "src/server.ts",
+  "repository": "github.com/HackrLabs/hackerpass-server",
+  "author": "Danny Grove <danny@drgrovellc.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@nestjs/common": "^4.6.5",
+    "@nestjs/core": "^4.6.5",
+    "@nestjs/microservices": "^4.6.5",
+    "@nestjs/testing": "^4.6.1",
+    "@nestjs/typeorm": "^2.0.0",
+    "@nestjs/websockets": "^4.6.5",
+    "bcrypt": "^1.0.3",
+    "config": "^1.30.0",
+    "jsonwebtoken": "^8.2.1",
+    "mysql": "^2.15.0",
+    "nest-router": "^1.0.5",
+    "reflect-metadata": "^0.1.12",
+    "rxjs": "^5.5.6",
+    "sequelize": "^4.19.0",
+    "sequelize-typescript": "^0.5.0",
+    "swagger-jsdoc": "^1.9.7",
+    "typeorm": "^0.1.14",
+    "winston": "^2.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^9.4.6",
+    "nodemon": "^1.12.1",
+    "ts-node": "^5.0.1",
+    "typescript": "^2.7.2"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "start:watch": "nodemon",
+    "prestart:prod": "tsc",
+    "start:prod": "node dist/server.js",
+    "typeorm": "./node_modules/.bin/typeorm"
+  }
+}
