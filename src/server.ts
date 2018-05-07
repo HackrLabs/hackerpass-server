@@ -1,19 +1,49 @@
-import { NestFactory } from '@nestjs/core';
-import { ApplicationModule } from './app.module';
-import { AuthModule } from './auth/auth.module';
-import { AuthGuard } from './auth/auth.guard';
-import { RolesModule } from './roles/roles.module';
-import { RolesGuard } from './roles/roles.guard';
+import * as Koa from 'koa';
 import * as config from 'config';
+import * as responseTime from 'koa-response-time';
+import * as Router from 'koa-trie-router';
+import * as mount from 'koa-mount';
+import { BindRoutes } from './routes';
+import { pool } from './utilities/database';
 
-async function bootstrap() {
-  const APP_CONFIG = config.get('app');
-  const app = await NestFactory.create(ApplicationModule);
-  const authGuard = app.select(AuthModule).get(AuthGuard);
-  const roleGuard = app.select(RolesModule).get(RolesGuard);
-  app.useGlobalGuards(authGuard);
-  app.useGlobalGuards(roleGuard);
-  await app.listen(APP_CONFIG.port, APP_CONFIG.host);
-}
+const APP_CONFIG = config.get('app');
+const app = new Koa();
 
-bootstrap();
+app.db = pool;
+
+// // X-Response-Time
+app.use(responseTime());
+
+// // 404 Handler
+app.use(async (ctx, next) => {
+  await next();
+  if (ctx.status === 404) {
+    ctx.response.status = 404;
+    ctx.response.body = {
+      error: true,
+      message: 'Entity not found'
+    };
+  }
+});
+
+// 401 Handler
+app.use(async (ctx, next) => {
+  try {
+    await next();
+  } catch (err) {
+    console.log('Error', err)
+    if (err.status === 401) {
+      ctx.response.status = 401;
+      ctx.response.body = {
+        error: true,
+        message: 'Not Authorized'
+      };
+    }
+  }
+});
+
+BindRoutes(app);
+
+app.listen(APP_CONFIG.port, APP_CONFIG.host, () => {
+  console.log(`Listening on ${APP_CONFIG.host}:${APP_CONFIG.port}`);
+});

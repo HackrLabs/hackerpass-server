@@ -15,9 +15,7 @@
     port: 3306,
     username: 'hp',
     password: 'hp',
-    database: 'HP',
+    database: 'hp',
     logging: true,
-    entities: ['./**/*.entity{.ts,.js}'],
-    synchronize: true
   }
 }
