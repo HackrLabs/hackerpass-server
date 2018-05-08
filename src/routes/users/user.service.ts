@@ -1,9 +1,9 @@
 import * as Koa from 'koa';
-import { IService } from '../../utilities/service';
+import { IModelService } from '../../utilities/service';
 import { User, UserView } from './user';
 import { Database } from '../../utilities/database';
 
-export class UserService implements IService {
+export class UserService implements IModelService {
   private database = new Database();
   private baseTable = 'user';
 
@@ -29,6 +29,23 @@ export class UserService implements IService {
 		return null;
   }
 
+  public async byEmail(email: string, toOut: boolean = true, output: UserView = UserView.PUBLIC): Promise<User> {
+    let query = `
+      SELECT
+        *
+      FROM
+        ${this.baseTable}
+      WHERE
+        active = true
+      AND
+        email = :email
+    `;
+    let raw = await this.database.query(query, {email});
+    if (!raw) return null;
+    if (toOut) return User.fromData(raw).toOutput(output)
+    return User.fromData(raw);
+  }
+
   public search(): Promise<User[]> {
     return;
   }
@@ -51,11 +68,19 @@ export class UserService implements IService {
   }
 
   public async create(body): Promise<User> {
-    const user = new User();
-    return user;
+    let query = `
+      INSERT INTO
+        ${this.baseTable}
+      SET
+        ?
+    `;
+    let raw = await this.database.query(query, body);
+    return User.fromData(raw).toOutput(UserView.PUBLIC);
   }
 
   public async delete(id: string): Promise<boolean> {
+    let query = `DELETE FROM ${this.baseTable} WHERE id = :id LIMIT 1`;
+    let raw = await this.database.query(query, {id});
     return true;
   }
 

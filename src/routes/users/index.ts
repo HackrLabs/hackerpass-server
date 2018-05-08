@@ -2,13 +2,13 @@ import * as Koa from 'koa';
 import * as KoaRouter from 'koa-trie-router';
 import { BaseHandler } from '../../utilities/base-handler';
 import { UserService } from './user.service';
-import { IService } from '../../utilities/service';
+import { IModelService } from '../../utilities/service';
 
 const BASE_PATH = '/users';
 
 export class UsersHandler extends BaseHandler {
   private BASE_PATH: string = BASE_PATH;
-  private service: IService;
+  private service: IModelService;
 
   constructor(app: Koa, prefix) {
     super(app, prefix + BASE_PATH);

@@ -3,18 +3,19 @@ import * as config from 'config';
 import * as responseTime from 'koa-response-time';
 import * as Router from 'koa-trie-router';
 import * as mount from 'koa-mount';
+import * as bodyparser from 'koa-bodyparser';
 import { BindRoutes } from './routes';
-import { pool } from './utilities/database';
 
 const APP_CONFIG = config.get('app');
 const app = new Koa();
 
-app.db = pool;
-
-// // X-Response-Time
+// X-Response-Time
 app.use(responseTime());
 
-// // 404 Handler
+// Body Parsing
+app.use(bodyparser());
+
+// 404 Handler
 app.use(async (ctx, next) => {
   await next();
   if (ctx.status === 404) {
@@ -42,8 +43,10 @@ app.use(async (ctx, next) => {
   }
 });
 
+// Router
 BindRoutes(app);
 
+// Listener
 app.listen(APP_CONFIG.port, APP_CONFIG.host, () => {
   console.log(`Listening on ${APP_CONFIG.host}:${APP_CONFIG.port}`);
 });

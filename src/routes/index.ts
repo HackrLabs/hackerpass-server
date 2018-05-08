@@ -2,6 +2,7 @@ import * as config from 'config';
 import * as mount from 'koa-mount';
 import * as KoaTrieRouter from 'koa-trie-router';
 import { UsersHandler } from './users';
+import { AuthHandler } from './auth';
 const APP_CONFIG = config.get('app');
 
 export function BindRoutes(app) {
@@ -14,5 +15,6 @@ export function BindRoutes(app) {
     return ctx;
   });
   app.use(router.middleware());
+  AuthHandler.mount(app);
   UsersHandler.mount(app)
 }
