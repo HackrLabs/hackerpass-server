@@ -1,7 +1,8 @@
 import * as Koa from 'koa';
 import { IModelService } from '../../utilities/service';
-import { User, UserView } from './user';
+import { User } from './user';
 import { Database } from '../../utilities/database';
+import { View } from '../../utilities/view';
 
 export class UserService implements IModelService {
   private database = new Database();
@@ -16,31 +17,33 @@ export class UserService implements IModelService {
       FROM
         ${this.baseTable}
       WHERE
-        id = ?
-      AND
-        active = true
+        ?
       LIMIT 1
     `;
-    let raw = await this.database.query(query, id);
+    let raw = await this.database.query(query, {
+      id: id,
+      active: 'true'
+    });
 		if (raw.length) {
-			let user = User.fromData(raw[0]).toOutput(UserView.PUBLIC);
+      let user = User.fromData(raw[0]).toOutput(View.PUBLIC);
 			return user;
 		}
 		return null;
   }
 
-  public async byEmail(email: string, toOut: boolean = true, output: UserView = UserView.PUBLIC): Promise<User> {
+  public async byEmail(email: string, toOut: boolean = true, output: View = View.PUBLIC): Promise<User> {
     let query = `
       SELECT
         *
       FROM
         ${this.baseTable}
       WHERE
-        active = true
-      AND
-        email = :email
+        ?
     `;
-    let raw = await this.database.query(query, {email});
+    let raw = await this.database.query(query, {
+      email: email,
+      active: true
+    });
     if (!raw) return null;
     if (toOut) return User.fromData(raw).toOutput(output)
     return User.fromData(raw);
@@ -62,7 +65,7 @@ export class UserService implements IModelService {
     let raw = await this.database.query(query);
     let users: User[] = [];
     for(let row of raw) {
-      users.push(User.fromData(row).toOutput(UserView.PUBLIC));
+      users.push(User.fromData(row).toOutput(View.PUBLIC));
     }
     return users;
   }
@@ -75,7 +78,7 @@ export class UserService implements IModelService {
         ?
     `;
     let raw = await this.database.query(query, body);
-    return User.fromData(raw).toOutput(UserView.PUBLIC);
+    return User.fromData(raw).toOutput(View.PUBLIC);
   }
 
   public async delete(id: string): Promise<boolean> {

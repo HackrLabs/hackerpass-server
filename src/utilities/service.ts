@@ -13,3 +13,7 @@ export interface IModelService extends IService {
 export interface ISearchService extends IService {
   search(): Promise<any[]>;
 }
+
+export interface IJoinService<T, U> extends IService {
+  get(tId: T, uId: U): Promise<U[]>;
+}

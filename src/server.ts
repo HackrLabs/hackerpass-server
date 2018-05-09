@@ -1,13 +1,17 @@
 import * as Koa from 'koa';
-import * as config from 'config';
-import * as responseTime from 'koa-response-time';
 import * as Router from 'koa-trie-router';
-import * as mount from 'koa-mount';
 import * as bodyparser from 'koa-bodyparser';
+import * as config from 'config';
+import * as jwt from 'jsonwebtoken';
+import * as mount from 'koa-mount';
+import * as responseTime from 'koa-response-time';
+import { UserService } from './routes/users/user.service';
 import { BindRoutes } from './routes';
 
 const APP_CONFIG = config.get('app');
+const JWT_CONFIG = config.get('jwt');
 const app = new Koa();
+const userService = new UserService();
 
 // X-Response-Time
 app.use(responseTime());
@@ -41,6 +45,21 @@ app.use(async (ctx, next) => {
       };
     }
   }
+});
+
+// Bind User
+app.use(async (ctx, next) => {
+  const authHeader = ctx.request.headers['Authorization'];
+  let token;
+  if (authHeader) {
+    token = authHeader.split(' ')[1];
+    try {
+      var decoded = jwt.verify(token, JWT_CONFIG.secret);
+      console.log('DECODED', decoded);
+      ctx.user = await userService.byId(decoded.userId);
+    } catch (e) {}
+  }
+  await next();
 });
 
 // Router

@@ -2,11 +2,8 @@ import * as bcrypt from 'bcrypt';
 import { Address } from '../../utilities/address';
 import { Model } from '../../utilities/model';
 import { Organization } from '../organizations/organizations';
-import { UserRoles } from '../roles/roles';
-
-export enum UserView {
-  PUBLIC = 0,
-}
+import { UserRole, UserPermission } from '../../utilities/roles';
+import { View } from '../../utilities/view';
 
 export class User extends Model {
   id: string;
@@ -16,7 +13,7 @@ export class User extends Model {
   password: string;
   handle: string;
   address: Address;
-  roles: Set<UserRoles>;
+  permissions: Set<UserPermission>;
   organizations: Set<Organization>;
 
   save() {
@@ -29,11 +26,14 @@ export class User extends Model {
     }
   }
 
-  toOutput(view: UserView): User {
+  toOutput(view: View): User {
     delete this.password;
     switch(view) {
-      case UserView.PUBLIC:
-        delete this.roles;
+      case View.PUBLIC:
+        delete this.permissions;
+        delete this.address;
+        break;
+      case View.PRIVATE:
         break;
     }
     return this;
@@ -61,7 +61,8 @@ export class User extends Model {
         case 'organizations':
           break;
         case 'active':
-          user[key] = data.active === true;
+          user[key] = (data.active == true);
+          break;
         default:
           user[key] = value;
       }
